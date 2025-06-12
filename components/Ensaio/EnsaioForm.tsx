@@ -1,5 +1,3 @@
-// components/ensaios/EnsaioForm.tsx
-
 "use client"
 
 import { useState, useEffect } from "react";
@@ -19,7 +17,6 @@ interface EnsaioFormProps {
   onClose: () => void;
 }
 
-// Seletor de usuário reutilizável
 function UserSelector({ onSelect }: { onSelect: (user: Usuario) => void }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -54,7 +51,6 @@ function UserSelector({ onSelect }: { onSelect: (user: Usuario) => void }) {
   );
 }
 
-// Formulário principal
 export function EnsaioForm({ onSuccess, onClose }: EnsaioFormProps) {
   const [formData, setFormData] = useState({
     pecaRelacionada: "",

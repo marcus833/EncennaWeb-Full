@@ -1,146 +1,93 @@
 "use client"
 
-import { useRouter } from "next/navigation"
-import { Book, Settings, GraduationCap, Calendar, DollarSign, Music, LogOut } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Book, Settings, GraduationCap, Calendar, DollarSign, Music, LogOut, UserPlus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DadosPessoaisForm } from "@/components/configuracoes/DadosPessoais";
+import { AlterarSenhaForm } from "@/components/configuracoes/AlterarSenhaForm";
 
-const Configuracoes = () => {
-  const router = useRouter()
+interface UserInfo {
+  id: string; nome: string; email: string; telefone: string; cpf: string; tipo: string; fotoPerfil?: string;
+}
 
-  const navigationItems = [
-    {
-      icon: GraduationCap,
-      label: "Gestão Acadêmica",
-      path: "/gestaoacademica",
-    },
-    {
-      icon: Book,
-      label: "Biblioteca Digital",
-      path: "/biblioteca",
-    },
-    {
-      icon: Music,
-      label: "Audições",
-      path: "/audicoes",
-    },
-    {
-      icon: Calendar,
-      label: "Ensaios",
-      path: "/ensaios",
-    },
-    {
-      icon: DollarSign,
-      label: "Financeiro",
-      path: "/financeiro",
-    },
-    {
-      icon: Settings,
-      label: "Configurações",
-      path: "/configuracoes",
-      active: true,
-    },
-  ]
+export default function ConfiguracoesPage() {
+  const router = useRouter();
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const userJson = localStorage.getItem("userInfo");
+    if (userJson) {
+      setUserInfo(JSON.parse(userJson));
+    } else {
+      router.push("/");
+    }
+    setLoading(false);
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userInfo");
+    router.push("/");
+  };
+  
+  const allNavigationItems = [
+    { icon: GraduationCap, label: "Gestão Acadêmica", path: "/gestaoacademica", adminOnly: false },
+    { icon: UserPlus,      label: "Cadastro de Usuários", path: "/cadastro-admin", adminOnly: true },
+    { icon: Book,          label: "Biblioteca Digital", path: "/biblioteca", adminOnly: false },
+    { icon: Music,         label: "Audições", path: "/audicoes", adminOnly: false },
+    { icon: Calendar,      label: "Ensaios", path: "/ensaios", adminOnly: false },
+    { icon: DollarSign,    label: "Financeiro", path: "/financeiro", adminOnly: false },
+    { icon: Settings,      label: "Configurações", path: "/configuracoes", active: true, adminOnly: false },
+  ];
+  const visibleNavigationItems = allNavigationItems.filter(item => !item.adminOnly || userInfo?.tipo === 'Administrador');
+
+
+  if (loading || !userInfo) {
+    return <div className="flex h-screen items-center justify-center">Carregando...</div>;
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <aside className="w-64 bg-white shadow-lg">
-        <div className="p-6 border-b">
-          <h2
-            className="text-2xl font-bold text-gray-800 cursor-pointer hover:text-blue-600 transition-colors"
-            onClick={() => router.push("/home")}
-          >
-            Encenna
-            <br />
-            <small className="text-sm font-normal text-gray-600">Digital</small>
-          </h2>
-        </div>
-
-        <nav className="p-4">
-          <div className="space-y-2">
-            {navigationItems.map((item, index) => {
-              const IconComponent = item.icon
-              return (
-                <Button
-                  key={index}
-                  variant={item.active ? "default" : "ghost"}
-                  className={`w-full justify-start gap-3 h-12 ${
-                    item.active ? "bg-blue-600 text-white hover:bg-blue-700" : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                  onClick={() => router.push(item.path)}
-                >
+      <aside className="w-64 bg-white shadow-lg shrink-0">
+        <div className="p-6 border-b"><h2 className="text-2xl font-bold text-gray-800 cursor-pointer" onClick={() => router.push("/home")}>Encenna<br /><small className="text-sm font-normal text-gray-600">Digital</small></h2></div>
+        <nav className="p-4"><div className="space-y-2">
+            {visibleNavigationItems.map((item) => {
+              const IconComponent = item.icon;
+              return (<Button key={item.path} variant={item.active ? "default" : "ghost"}
+                  className={`w-full justify-start gap-3 h-12 ${item.active ? "bg-blue-600 text-white hover:bg-blue-700" : "text-gray-700 hover:bg-gray-100"}`}
+                  onClick={() => router.push(item.path)}>
                   <IconComponent className="h-5 w-5" />
                   <span className="text-sm">{item.label}</span>
-                </Button>
-              )
+              </Button>)
             })}
-          </div>
-        </nav>
+        </div></nav>
+        <div className="p-4 absolute bottom-0 w-64">
+          <Button variant="outline" className="w-full gap-2" onClick={handleLogout}><LogOut className="h-4 w-4" /> Logout</Button>
+        </div>
       </aside>
 
       <main className="flex-1 p-8">
-        <div className="max-w-2xl mx-auto">
-          <div className="flex justify-center mb-8">
-            <div className="relative">
-              <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
-                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                  <div className="w-8 h-8 bg-blue-500 rounded-full"></div>
-                </div>
-              </div>
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center gap-6 mb-8">
+            <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
+              <AvatarImage src={userInfo.fotoPerfil || `https://ui-avatars.com/api/?name=${userInfo.nome.replace(" ", "+")}&background=0D8ABC&color=fff`} alt={userInfo.nome} />
+              <AvatarFallback>{userInfo.nome.substring(0, 2)}</AvatarFallback>
+            </Avatar>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">{userInfo.nome}</h1>
+              <p className="text-lg text-gray-500">{userInfo.tipo}</p>
             </div>
           </div>
 
-          <Card className="shadow-lg">
-            <CardContent className="p-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Nome</label>
-                  <Input type="text" placeholder="Digite seu nome" className="h-12" />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Telefone</label>
-                  <Input type="tel" placeholder="(00) 00000-0000" className="h-12" />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Data de Nascimento</label>
-                  <Input type="date" className="h-12" />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">E-mail</label>
-                  <Input type="email" placeholder="seu@email.com" className="h-12" />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">CPF</label>
-                  <Input type="text" placeholder="000.000.000-00" className="h-12" />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Senha</label>
-                  <Input type="password" placeholder="Digite sua senha" className="h-12" />
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-between">
-                <Button variant="outline" className="h-12 px-8">
-                  Salvar Alterações
-                </Button>
-
-                <Button variant="destructive" className="h-12 px-8 gap-2" onClick={() => router.push("/")}>
-                  <LogOut className="h-4 w-4" />
-                  Logout
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <DadosPessoaisForm userInfo={userInfo} />
+            <AlterarSenhaForm userId={userInfo.id} />
+          </div>
         </div>
       </main>
     </div>
-  )
+  );
 }
-
-export default Configuracoes

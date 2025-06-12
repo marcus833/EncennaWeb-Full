@@ -1,4 +1,3 @@
-// components/ensaios/AdminLocalPanel.tsx
 "use client"
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
@@ -9,7 +8,7 @@ interface Local { _id: string; nome: string; }
 
 interface AdminLocalPanelProps {
   locais: Local[];
-  onUpdate: () => void; // Função para recarregar a lista de locais na página principal
+  onUpdate: () => void;
 }
 
 export function AdminLocalPanel({ locais, onUpdate }: AdminLocalPanelProps) {
@@ -33,7 +32,7 @@ export function AdminLocalPanel({ locais, onUpdate }: AdminLocalPanelProps) {
       
       alert(`Local "${novoLocalNome}" criado com sucesso!`);
       setNovoLocalNome("");
-      onUpdate(); // Chama a função para recarregar a lista de locais na página principal
+      onUpdate();
     } catch (err) {
       if (err instanceof Error) setError(err.message);
     } finally {
@@ -45,7 +44,6 @@ export function AdminLocalPanel({ locais, onUpdate }: AdminLocalPanelProps) {
     <div className="mt-12 p-6 bg-slate-100 rounded-lg shadow-inner">
       <h3 className="text-lg font-bold text-gray-800 mb-4">Painel de Gerenciamento de Locais (Admin)</h3>
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-        {/* Lado para Adicionar um Novo Local */}
         <div className='space-y-4'>
           <div className="space-y-2">
             <Label htmlFor="novo-local">Nome do Novo Local</Label>
@@ -59,7 +57,6 @@ export function AdminLocalPanel({ locais, onUpdate }: AdminLocalPanelProps) {
           <Button onClick={handleCriarLocal} disabled={loading}>{loading ? "Criando..." : "Criar Local"}</Button>
           {error && <p className="text-sm text-red-600">{error}</p>}
         </div>
-        {/* Lado que Lista os Locais já Existentes */}
         <div className='space-y-2'>
             <Label>Locais Existentes</Label>
             <div className='p-2 border rounded-md bg-white min-h-[100px] max-h-40 overflow-y-auto'>
